@@ -21,17 +21,13 @@ public class Catalogo {
     public List<Producto> buscar(String titulo){ //Buscar por titulo
         List<Producto> res = new ArrayList<>();
         for (Producto p : productos){
-
-            /*if (p instanceof Pelicula peli){
-                System.out.println("Películas disponibles: ");
-                p.getPrestado();
-            }*/
             if (p.getTitulo().toLowerCase().contains(titulo.toLowerCase())){
                 res.add(p);
             }
         }
         return res;
     }
+
     public List<Producto> buscar(int anio){//Buscar por año
         List<Producto> res = new ArrayList<>();
         for (Producto p : productos){

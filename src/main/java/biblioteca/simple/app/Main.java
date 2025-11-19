@@ -96,7 +96,7 @@ public class Main {
     private static void buscarPorAnio(){
         System.out.println("Año: ");
         int a = sc.nextInt();
-        sc.nextInt();
+        sc.nextLine();
         catalogo.buscar(a).forEach(p -> System.out.println(" - " + p));
     }
 
