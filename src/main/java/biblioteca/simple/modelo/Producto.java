@@ -25,10 +25,10 @@ public abstract class Producto {
     protected int getId() {
         return id;
     }
-    protected String getTitulo() {
+    public String getTitulo() {
         return titulo;
     }
-    protected String getAnio() {
+    public String getAnio() {
         return anio;
     }
     protected Formato getFormato() {
