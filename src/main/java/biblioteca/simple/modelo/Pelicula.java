@@ -28,7 +28,7 @@ public class Pelicula extends Producto implements Prestable {
         return minDuracion;
     }
 
-
+    //Implementación Interfaz Prestable
     @Override public void prestar(Usuario u) {
         if(prestado) throw new IllegalStateException("Ya está prestado.");
         this.prestado = true;

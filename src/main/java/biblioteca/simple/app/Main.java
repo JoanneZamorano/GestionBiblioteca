@@ -47,6 +47,7 @@ public class Main {
             System.out.println("3. Buscar por año");
             System.out.println("4. Prestar Producto");
             System.out.println("5. Devolver Producto");
+            System.out.println("6. Crear nuevo usuario");
             System.out.println("0. Salir");
 
             //Para si el usuario mete otra cosa que no sea int, vuelva a aparecer el menú:
@@ -62,6 +63,7 @@ public class Main {
                 case 3 -> buscarPorAnio();
                 case 4 -> prestar();
                 case 5 -> devolver();
+                case 6 -> crearUsuario();
                 case 0 -> System.out.println("...ADIOS!");
                 default -> System.out.println("Opción no válida");
             }
@@ -98,6 +100,29 @@ public class Main {
         int a = sc.nextInt();
         sc.nextLine();
         catalogo.buscar(a).forEach(p -> System.out.println(" - " + p));
+    }
+
+    // CREAR USUARIOS
+    public static Usuario crearUsuario(){
+        System.out.println("Nombre:");
+        String nombre = sc.nextLine();
+
+        //Mostrar siguiente ID para asignarselo automaticamente al usuario
+        int maxId = 0;
+        for (Usuario u : usuarios) {
+            if (u.getId() > maxId) {
+                maxId = u.getId();
+            }
+        }
+        int id = maxId + 1;
+        System.out.println("ID asignado: " + id);
+
+        //Añadir usuario
+        Usuario nuevoUsuario = new Usuario(id, nombre);
+        usuarios.add(nuevoUsuario);
+
+        System.out.println("Usuario nuevo registrado correctamente.\n\tNombre: " + nombre + " | Código " + id);
+        return nuevoUsuario;
     }
 
     // LISTAR USUARIOS
