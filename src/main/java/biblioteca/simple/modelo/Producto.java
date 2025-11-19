@@ -22,7 +22,7 @@ public abstract class Producto {
 
 
     //Getters
-    protected int getId() {
+    public int getId() {
         return id;
     }
     public String getTitulo() {

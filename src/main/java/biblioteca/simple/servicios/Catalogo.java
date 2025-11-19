@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Catalogo {
+
     private final List<Producto> productos = new ArrayList<>();//Declararlo final protege el espacio de memoria del Array
 
     public void alta(Producto p){
@@ -21,10 +22,10 @@ public class Catalogo {
         List<Producto> res = new ArrayList<>();
         for (Producto p : productos){
 
-            if (p instanceof Pelicula peli){
+            /*if (p instanceof Pelicula peli){
                 System.out.println("Películas disponibles: ");
                 p.getPrestado();
-            }
+            }*/
             if (p.getTitulo().toLowerCase().contains(titulo.toLowerCase())){
                 res.add(p);
             }
