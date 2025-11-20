@@ -3,14 +3,14 @@ package biblioteca.simple.app;
 import biblioteca.simple.contratos.Prestable;
 import biblioteca.simple.modelo.*;
 import biblioteca.simple.servicios.Catalogo;
+import biblioteca.simple.servicios.PersistenciaUsuarios;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.SortedMap;
 import java.util.stream.Collectors;
 
-import static java.util.Locale.filter;
 
 public class Main {
     private static final Catalogo catalogo = new Catalogo();
@@ -25,11 +25,18 @@ public class Main {
             menu();
 
     }
+
+    //CARGA DE DATOS INICIALES PARA PRUEBAS:
     private static void cargarDatos(){
+        //Libro
         catalogo.alta(new Libro(1, "Harry Potter y la priedra filosofal", "1998", Formato.FISICO, "11122233344555", "J.K.Rowling"));
         catalogo.alta(new Libro(2, "El nombre del viento", "2007", Formato.FISICO, "113654555", "Patrick Rothfuss"));
+        //Pelicula
         catalogo.alta(new Pelicula(3, "Intocable (Intouchables)", "2011", Formato.FISICO, "Olivier Nakache, Éric Toledano", 112));
         catalogo.alta(new Pelicula(4, "Figuras ocultas", "2017", Formato.FISICO, "Theodore Melfi", 127));
+        //Videojuego
+        catalogo.alta(new Videojuego(5,"Assassins Creed II", "2009", Formato.FISICO, "Xbox", 18));
+        catalogo.alta(new Videojuego(6,"LOL: League of Legends", "2009", Formato.DIGITAL, "PC", 12));
 
         usuarios.add(new Usuario(1,"Joa"));
         usuarios.add(new Usuario(2,"Adrián"));
@@ -42,12 +49,15 @@ public class Main {
 
         do{
             System.out.println("\n===Menú de Biblioteca===");
-            System.out.println("1. Listar");
+            System.out.println("1. Listar Productos disponibles");
             System.out.println("2. Buscar por titulo");
             System.out.println("3. Buscar por año");
             System.out.println("4. Prestar Producto");
             System.out.println("5. Devolver Producto");
             System.out.println("6. Crear nuevo usuario");
+            System.out.println("7. Exportar usuarios");
+            System.out.println("8. * Importar usuarios");
+            System.out.println("9. * Listar usuarios");
             System.out.println("0. Salir");
 
             //Para si el usuario mete otra cosa que no sea int, vuelva a aparecer el menú:
@@ -64,6 +74,8 @@ public class Main {
                 case 4 -> prestar();
                 case 5 -> devolver();
                 case 6 -> crearUsuario();
+                case 7 -> exportarUsuarios();
+                case 8 -> importarUsuarios();
                 case 0 -> System.out.println("...ADIOS!");
                 default -> System.out.println("Opción no válida");
             }
@@ -79,10 +91,15 @@ public class Main {
             System.out.println("Catálogo vacío.");
             return;
         }
-
         System.out.println("===Lista de Productos===");
 
         for (Producto p:lista){
+            //
+            if (p instanceof Prestable) {//casting para tratarlo como Prestable y acceder a sus métodos
+                if (((Prestable) p).estaPrestado()) {
+                    continue; //si está prestado salta al siguiente ciclo y NO imprime
+                }
+            }
             System.out.println(" - " + p);
         }
     }
@@ -121,7 +138,7 @@ public class Main {
         Usuario nuevoUsuario = new Usuario(id, nombre);
         usuarios.add(nuevoUsuario);
 
-        System.out.println("Usuario nuevo registrado correctamente.\n\tNombre: " + nombre + " | Código " + id);
+        System.out.println("Usuario nuevo registrado correctamente.\n\tNombre: " + nombre + " | ID: " + id);
         return nuevoUsuario;
     }
 
@@ -234,6 +251,23 @@ public class Main {
         Prestable pE = (Prestable) pEncontrado;
         pE.devolver();
         System.out.println("Devuelto correctamente");
+    }
+
+    // EXPORTAR USUARIOS
+    private static void exportarUsuarios(){
+
+        //Gestionar las excepciones:
+        try {
+            PersistenciaUsuarios.exportar(usuarios);
+            System.out.println("...Usuarios exportados correctamente!");
+        } catch (Exception e) {
+            System.out.println("Error al exportar usuarios " + e.getMessage());
+        }
+    }
+
+    // IMPORTAR USUARIOS
+    private static void importarUsuarios(){
+
     }
 
 }

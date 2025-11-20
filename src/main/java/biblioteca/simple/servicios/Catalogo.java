@@ -1,6 +1,4 @@
 package biblioteca.simple.servicios;
-import biblioteca.simple.modelo.Libro;
-import biblioteca.simple.modelo.Pelicula;
 import biblioteca.simple.modelo.Producto;
 
 import java.util.ArrayList;
