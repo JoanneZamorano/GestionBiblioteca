@@ -3,12 +3,12 @@ package biblioteca.simple.servicios;
 import biblioteca.simple.modelo.Usuario;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class PersistenciaUsuarios {
@@ -24,6 +24,19 @@ public final class PersistenciaUsuarios {
         try(Writer w = new OutputStreamWriter(new FileOutputStream(ARCHIVO), StandardCharsets.UTF_8)){
             gson.toJson(usuarios,w);
         }
+    }
+
+    public static List<Usuario> importar()throws IOException{
+        File f = new File(ARCHIVO);
+
+        if(!f.exists())return new ArrayList<>();
+
+        try(Reader r = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8)){
+            Type tipoLista = new TypeToken<ArrayList<Usuario>>(){}.getType();
+            List<Usuario> lista = gson.fromJson(r, tipoLista);
+            return (lista != null ? lista : new ArrayList<>());
+        }
+
     }
 
 }

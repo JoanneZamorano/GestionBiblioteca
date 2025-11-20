@@ -49,15 +49,17 @@ public class Main {
 
         do{
             System.out.println("\n===Menú de Biblioteca===");
-            System.out.println("1. Listar Productos disponibles");
-            System.out.println("2. Buscar por titulo");
-            System.out.println("3. Buscar por año");
-            System.out.println("4. Prestar Producto");
-            System.out.println("5. Devolver Producto");
-            System.out.println("6. Crear nuevo usuario");
-            System.out.println("7. Exportar usuarios");
-            System.out.println("8. * Importar usuarios");
-            System.out.println("9. * Listar usuarios");
+            System.out.println("Gestión Producto:");
+            System.out.println("\t1. Listar Productos disponibles");
+            System.out.println("\t2. Buscar por titulo");
+            System.out.println("\t3. Buscar por año");
+            System.out.println("\t4. Prestar Producto");
+            System.out.println("\t5. Devolver Producto");
+            System.out.println("Gestión Usuarios:");
+            System.out.println("\t6. Listar usuarios");
+            System.out.println("\t7. Crear nuevo usuario");
+            System.out.println("\t8. Exportar usuarios");
+            System.out.println("\t9. Importar usuarios");
             System.out.println("0. Salir");
 
             //Para si el usuario mete otra cosa que no sea int, vuelva a aparecer el menú:
@@ -73,9 +75,10 @@ public class Main {
                 case 3 -> buscarPorAnio();
                 case 4 -> prestar();
                 case 5 -> devolver();
-                case 6 -> crearUsuario();
-                case 7 -> exportarUsuarios();
-                case 8 -> importarUsuarios();
+                case 6 -> listarUsuarios();
+                case 7 -> crearUsuario();
+                case 8 -> exportarUsuarios();
+                case 9 -> importarUsuarios();
                 case 0 -> System.out.println("...ADIOS!");
                 default -> System.out.println("Opción no válida");
             }
@@ -119,52 +122,10 @@ public class Main {
         catalogo.buscar(a).forEach(p -> System.out.println(" - " + p));
     }
 
-    // CREAR USUARIOS
-    public static Usuario crearUsuario(){
-        System.out.println("Nombre:");
-        String nombre = sc.nextLine();
-
-        //Mostrar siguiente ID para asignarselo automaticamente al usuario
-        int maxId = 0;
-        for (Usuario u : usuarios) {
-            if (u.getId() > maxId) {
-                maxId = u.getId();
-            }
-        }
-        int id = maxId + 1;
-        System.out.println("ID asignado: " + id);
-
-        //Añadir usuario
-        Usuario nuevoUsuario = new Usuario(id, nombre);
-        usuarios.add(nuevoUsuario);
-
-        System.out.println("Usuario nuevo registrado correctamente.\n\tNombre: " + nombre + " | ID: " + id);
-        return nuevoUsuario;
-    }
-
-    // LISTAR USUARIOS
-    private static void listarUsuarios(){
-        if (usuarios.isEmpty()) {
-            System.out.println("No hay usuarios registrados");
-            return;
-        }
-        System.out.println("Lista usuarios");
-        usuarios.forEach( u ->
-                System.out.println("- Código : " + u.getId() + "| Nombre: " + u.getNombre() )
-        );
-    }
-
-    // LISTAR USUARIO POR ID
-    private static Usuario getUsuarioPorCodigo(int id){
-        return usuarios.stream()
-                .filter(u -> u.getId() == id)
-                .findFirst()
-                .orElse(null);
-    }
 
     // PRESTAR PRODUCTO
     private static void prestar(){
-        //1: Mostrar productos disponibles
+        //1: Mostrar SOLO productos disponibles
         List<Producto> disponibles = catalogo.listar().stream()
                 .filter(p -> p instanceof Prestable pN && !pN.estaPrestado())
                 .collect(Collectors.toList());
@@ -197,20 +158,51 @@ public class Main {
             return;
         }
 
-        listarUsuarios();
+        //2: SELECCIÓN DE USUARIO
+        Usuario u1 = null;
 
-        System.out.println("Ingresa código de usurio");
+        do {
+            listarUsuarios();
+            System.out.println("Ingresa el ID del usuario (o -1 para cancelar el préstamo):");
 
-        int cUsuario = sc.nextInt();
-        sc.nextLine();
-        Usuario u1 = getUsuarioPorCodigo(cUsuario);
+            int cUsuario;
+            if (sc.hasNextInt()) {
+                cUsuario = sc.nextInt();
+                sc.nextLine();
+            } else {
+                System.out.println("Por favor, ingresa un ID");
+                continue;
+            }
 
-        if (u1 == null){
-            System.out.println("Usuari ono encontrado");
+            if (cUsuario == -1) {
+                System.out.println("Préstamo cancelado");
+                return;
+            }
+
+            u1 = getUsuarioPorCodigo(cUsuario); //bUSCA POR id
+
+            if (u1 == null) {
+                System.out.println("Usuario con ID " + cUsuario + " no encontrado. " +
+                        "\n¿Quieres registrar un nuevo usuario y continuar con el préstamo? (s/n)");
+                String respuesta = sc.nextLine().trim().toLowerCase();
+
+                if (respuesta.equals("s")) {
+                    u1 = crearUsuario();
+                } else{ //Vuelve a pedir id de los usuarios
+                    System.out.println("Volviendo a la pantalla anterior... Por favor, ingresa un ID:");
+                }
+            }
+        } while (u1 == null);
+
+        if (u1 != null) {
+            Prestable pPrestable = (Prestable) pEncontrado;
+            pPrestable.prestar(u1);
+            System.out.println("--------------");
+            System.out.println("Préstamo REALIZADO:" +
+                    "\n\tProducto: " + pEncontrado +
+                    "\n\tID: " + u1.getId() + " | Usuario: " + u1.getNombre());
+            System.out.println("--------------");
         }
-
-        Prestable pPrestable = (Prestable) pEncontrado;
-        pPrestable.prestar(u1);
     }
 
     // DEVOLVER PRODUCTO
@@ -239,7 +231,6 @@ public class Main {
                         return false;
                     }
                 })
-
                 .findFirst()
                 .orElse(null);
 
@@ -250,7 +241,57 @@ public class Main {
 
         Prestable pE = (Prestable) pEncontrado;
         pE.devolver();
-        System.out.println("Devuelto correctamente");
+        System.out.println("--------------");
+        System.out.println("Devolución REALIZADA:" +
+                "\n\tProducto: " + pEncontrado);
+        System.out.println("--------------");
+    }
+
+
+    // CREAR USUARIOS
+    public static Usuario crearUsuario(){
+        System.out.println("Nombre:");
+        String nombre = sc.nextLine();
+
+        //Mostrar siguiente ID para asignarselo automaticamente al usuario
+        int maxId = 0;
+        for (Usuario u : usuarios) {
+            if (u.getId() > maxId) {
+                maxId = u.getId();
+            }
+        }
+        int id = maxId + 1;
+        System.out.println("ID asignado: " + id);
+
+        //Añadir usuario
+        Usuario nuevoUsuario = new Usuario(id, nombre);
+        usuarios.add(nuevoUsuario);
+
+        System.out.println("--------------");
+        System.out.println("Usuario nuevo registrado correctamente.\n\tNombre: " + nombre + " | ID: " + id);
+        System.out.println("--------------");
+
+        return nuevoUsuario;
+    }
+
+    // LISTAR USUARIOS
+    private static void listarUsuarios(){
+        if (usuarios.isEmpty()) {
+            System.out.println("No hay usuarios registrados");
+            return;
+        }
+        System.out.println("Lista usuarios");
+        usuarios.forEach( u ->
+                System.out.println("- Código : " + u.getId() + "| Nombre: " + u.getNombre() )
+        );
+    }
+
+    // LISTAR USUARIO POR ID
+    private static Usuario getUsuarioPorCodigo(int id){
+        return usuarios.stream()
+                .filter(u -> u.getId() == id)
+                .findFirst()
+                .orElse(null);
     }
 
     // EXPORTAR USUARIOS
@@ -261,12 +302,22 @@ public class Main {
             PersistenciaUsuarios.exportar(usuarios);
             System.out.println("...Usuarios exportados correctamente!");
         } catch (Exception e) {
-            System.out.println("Error al exportar usuarios " + e.getMessage());
+            System.out.println("Error al exportar usuarios: " + e.getMessage());
         }
     }
 
     // IMPORTAR USUARIOS
     private static void importarUsuarios(){
+        //Gestionar las excepciones:
+        try {
+            List<Usuario> cargados = PersistenciaUsuarios.importar();
+            usuarios.clear(); //borra todos los usuarios
+            usuarios.addAll(cargados); //mete todos los usuarios nuevos
+
+            System.out.println("...Usuarios importados correctamente!");
+        } catch (Exception e) {
+            System.out.println("Error al importar usuarios: " + e.getMessage());
+        }
 
     }
 
